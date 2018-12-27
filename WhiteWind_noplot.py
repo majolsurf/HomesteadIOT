@@ -4,7 +4,6 @@ import time
 from time import sleep
 from datetime import datetime
 from Adafruit_CCS811 import Adafruit_CCS811
-import matplotlib.pyplot as plt
 import numpy as numps
 from numpy import median
 
@@ -19,8 +18,6 @@ sig_temp = [24 for i in range(samples)]
 minibuff_co2 = [0 for i in range(minibuffSamples)]
 minibuff_tvoc = [0 for i in range(minibuffSamples)]
 minibuff_temp = [24 for i in range(minibuffSamples)]
-
-plt.ion()
 
 print "Before While Loop 1"    
 
@@ -85,27 +82,9 @@ while(1):
                   sig_co2[-1] = stor_co2;
               else:
                   sig_co2[-1] = sig_co2[-2];
-              
-              plt.clf()
-              plt.subplot(3,1,1)
-              plt.plot(sig_temp)
-              plt.show()
-              plt.pause(0.0001)
-              #plt.clf()
-              
-              plt.subplot(3,1,2)
-              plt.plot(sig_co2)
-              plt.show()
-              plt.pause(0.0001)
-              #plt.clf()
-              
-              plt.subplot(3,1,3)
-              plt.plot(sig_tvoc)
-              plt.show()
-              plt.pause(0.0001)
-              #plt.clf()
+          
 	    else:
 	      print "ERROR!"
 	      while(1):
 	      	pass
-	sleep(1)
+	sleep(30)
