@@ -6,6 +6,7 @@ from datetime import datetime
 from Adafruit_CCS811 import Adafruit_CCS811
 import numpy as numps
 from numpy import median
+from numpy import average
 import urllib2
 
 enableMedianFilter = 1;
@@ -14,7 +15,9 @@ api_key = "4XDQTWMA445DHJNV"
 baseURL = 'https://api.thingspeak.com/update?api_key=%s' % api_key
 
 ccs =  Adafruit_CCS811()
-samples = 256;#1024;
+sleep_time = 15;
+longest_ts = 60*60/15; #Update Every 15 minutes
+samples = 4*longest_ts/sleep_time;#1024;
 minibuffSamples = 4;
 sig_co2 = [0 for i in range(samples)]
 sig_tvoc = [0 for i in range(samples)]
@@ -23,13 +26,13 @@ minibuff_co2 = [0 for i in range(minibuffSamples)]
 minibuff_tvoc = [0 for i in range(minibuffSamples)]
 minibuff_temp = [24 for i in range(minibuffSamples)]
 
-print "Before While Loop 1"    
-
 while not ccs.available():
         print "Inside While Loop 1"    
 	pass
 temp = ccs.calculateTemperature()
 ccs.tempOffset = temp - 25.0
+
+samp_i = 0;
 
 while(1):
 	try:
@@ -92,16 +95,30 @@ while(1):
 	      while(1):
 	      	pass
 	
-    
         try:
           f = urllib2.urlopen(baseURL + 
                                 "&field1=%s" % (temp) +
-                                "&field2=%s" % (stor_co2) +
-				"&field3=%s" % (stor_tvoc))
+                                "&field3=%s" % (stor_co2) +
+				"&field5=%s" % (stor_tvoc))
+          print f.read()
+          f.close()
         except:
-          print 'Dumped by thingspeak channel export. Exiting.'
-          break
-        print f.read()
-        f.close()
+          print 'Dumped by thingspeak channel export.'
+          #break
 
-	sleep(15)
+	sleep(sleep_time)
+	
+	if samp_i < samples:
+            samp_i = samp_i+1;
+        else:
+            samp_i = 0;
+            try:
+              f = urllib2.urlopen(baseURL + 
+                                    "&field2=%s" % (average(sig_temp)) +
+                                    "&field4=%s" % (average(sig_co2)) +
+                                    "&field6=%s" % (average(sig_tvoc)))
+              print f.read()
+              f.close()
+            except:
+              print 'Dumped by thingspeak channel export.'
+            
